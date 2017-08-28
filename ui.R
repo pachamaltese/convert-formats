@@ -3,7 +3,19 @@ p_load(shiny)
 
 fluidPage(
   title = "Datawheel File Converter",
-  tags$head(tags$link(rel='shortcut icon', href='http://pacha.datawheel.us/img/favicon.ico')),     
+  tags$head(tags$link(rel='shortcut icon', href='http://pacha.datawheel.us/img/favicon.ico')),
+  tags$head(HTML(
+    "<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-65764144-17', 'auto');
+    ga('send', 'pageview');
+  
+    </script>"
+  )),
   #theme = shinytheme('flatly'),
   theme = 'theme.css',
   titlePanel(title = div("Datawheel File Converter", img(src='http://pacha.datawheel.us/img/datawheel_labs_small.png', align = 'right'))),
