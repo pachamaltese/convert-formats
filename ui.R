@@ -8,7 +8,7 @@ fluidPage(
   tags$head(includeScript('www/google-analytics.js')),
   #theme = shinytheme('flatly'),
   theme = 'theme.css',
-  titlePanel(title = div('Datawheel File Converter', img(src='http://pacha.datawheel.us/img/datawheel_labs_small.png', align = 'right'))),
+  titlePanel(title = div(img(src='title.svg'), style='text-align: center;')),
   fluidRow(
     column(6, h3('Input')),
     column(6, h3('Output'))
@@ -35,6 +35,7 @@ fluidPage(
       hr(),
       conditionalPanel(condition = '!output.preview', p('How this work?'), 
                        p('Upload your file and our server will convert it accordingly. We don\'t stores copies of your files.'), 
+                       p('At the moment this tool supports csv, tsv, xls, xlsx, json, sav and dta.'),
                        p('Be wise and don\'t use this if doing so implies violating your company policies. We are not responsible for the use you give to this. Be warned.')),
       hr(),
       print('\u00a9 Datawheel, 2017. Released under MIT License.'),
