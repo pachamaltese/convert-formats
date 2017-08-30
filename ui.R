@@ -1,24 +1,14 @@
 if (!require('pacman')) install.packages('pacman')
-p_load(shiny)
+p_load(shiny,shinyjs,tools)
 
 fluidPage(
-  title = "Datawheel File Converter",
+  useShinyjs(),
+  title = 'Datawheel File Converter',
   tags$head(tags$link(rel='shortcut icon', href='http://pacha.datawheel.us/img/favicon.ico')),
-  tags$head(HTML(
-    "<script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-  
-    ga('create', 'UA-65764144-17', 'auto');
-    ga('send', 'pageview');
-  
-    </script>"
-  )),
+  tags$head(includeScript('www/google-analytics.js')),
   #theme = shinytheme('flatly'),
   theme = 'theme.css',
-  titlePanel(title = div("Datawheel File Converter", img(src='http://pacha.datawheel.us/img/datawheel_labs_small.png', align = 'right'))),
+  titlePanel(title = div('Datawheel File Converter', img(src='http://pacha.datawheel.us/img/datawheel_labs_small.png', align = 'right'))),
   fluidRow(
     column(6, h3('Input')),
     column(6, h3('Output'))
@@ -40,31 +30,17 @@ fluidPage(
                   '.dta'
                 )
       ),
-      radioButtons(
-        'filein', 'Input format', c('csv','tsv','xlsx','json','sav','dta'), selected = NULL, inline = T
-      ),
-      tags$hr(),
-      conditionalPanel(condition = 'input.filein == "csv" | input.filein == "tsv"', p(strong('Advanced csv/tsv options'))),
-      conditionalPanel(condition = 'input.filein == "xlsx"', p(strong('Advanced xlsx options'))),
-      conditionalPanel(condition = 'input.filein == "csv" | input.filein == "tsv" | input.filein == "xlsx"', checkboxInput('header', 'My file has column names (leave marked if unsure)', TRUE)),
-      conditionalPanel(condition = 'input.filein == "csv" | input.filein == "tsv" | input.filein == "xlsx"', checkboxInput('fixheader', 'Fix column names (leave marked if unsure)', TRUE)),
-      conditionalPanel(condition = 'input.filein == "csv"', radioButtons('sep_csv', 'Separator',
-                                                                         c('Comma' = ',', 'Semicolon' = ';'),
-                                                                         selected = ',')),
-      conditionalPanel(condition = 'input.filein == "csv"', radioButtons('quote_csv', 'Strings',
-                                                                         c('Automatic detection' = '', 'Double quotes' = '\"', 'Single quotes' = '\''),
-                                                                         selected = '')),
-      conditionalPanel(condition = 'input.filein == "tsv"', radioButtons('sep_tsv', 'Separator', 
-                                                                         c('Tabulation' = '\t', 'Space' = ' '), 
-                                                                         selected = '\t')),
-      conditionalPanel(condition = 'input.filein == "tsv"', radioButtons('quote_tsv', 'Strings',
-                                                                         c('Automatic detection' = '', 'Double quotes' = '\"', 'Single quotes' = '\''),
-                                                                         selected = ''))
-      #conditionalPanel(condition = 'input.filein == "xlsx"',  textAreaInput('sheet_xlsx', 'Specify sheet (i.e. "Sheet1", optional)', '')),
-      #conditionalPanel(condition = 'input.filein == "xlsx"',  textAreaInput('range_xlsx', 'Specify range (i.e. "A1:D40", optional)', ''))
+      p(strong('Additional options')),
+      checkboxInput('fixheader', 'Fix column names (don\'t change this if you are unsure)', TRUE),
+      hr(),
+      conditionalPanel(condition = '!output.preview', p('How this work?'), 
+                       p('Upload your file and our server will convert it accordingly. We don\'t stores copies of your files.'), 
+                       p('Be wise and don\'t use this if doing so implies violating your company policies. We are not responsible for the use you give to this. Be warned.')),
+      hr(),
+      print('\u00a9 Datawheel, 2017. Released under MIT License.'),
+      print('License and code:'), a('https://github.com/pachamaltese/convert-formats')
     )),
     column(6,wellPanel(
-      #verbatimTextOutput('templocation'),
       radioButtons(
         'fileout', 'Output format', c('csv','tsv','xlsx','json','sav','dta'), selected = NULL, inline = T
       ),
@@ -73,22 +49,10 @@ fluidPage(
       conditionalPanel(condition = 'input.fileout == "tsv"', checkboxInput('tsv_spaceseparator', 'Use space as separator (leave unmarked if unsure)', FALSE)),
       conditionalPanel(condition = 'input.fileout == "json"', p(strong('Advanced json options'))),
       conditionalPanel(condition = 'input.fileout == "json"', checkboxInput('minify', 'Minify the output (leave marked if unsure)', TRUE)),
-      conditionalPanel(condition = '!output.preview', p('How it works? 
-                                                        Upload your file and our R server will convert it accordingly. We don\'t stores copies of your files.'), 
-                                                      p('Be wise and don\'t use this if doing so implies violating your company policies. We are not responsible for the use you give to this. Be warned.')), 
-      conditionalPanel(condition = 'output.preview', 
-                       h4('Preview'),
-                       p(strong('This shows at most 10 rows and 5 columns to show you what your selected parameters turn into. The download button returns the complete file after conversion.')),
-                       #conditionalPanel(condition = 'input.fileout == "xlsx"', verbatimTextOutput('text_input')),
-                       tableOutput('preview'),
-                       downloadButton('download_data', 'Download')),
-      hr(),
-      print('\u00a9 Datawheel, 2017. Released under MIT License.'),
-      print('License and code:'), a('https://github.com/pachamaltese/convert-formats')
+      hidden(div(id = "loading_page",
+                 div(img(src='http://pacha.datawheel.us/img/loading_small.gif'), p('') ,p('Datawheeling, please wait...'), align = 'center')
+      )),
+      div(id = "show_preview", conditionalPanel(condition = 'output.preview', h4('Preview'), tableOutput('preview'), downloadButton('download_data', 'Download')))
     ))
   )
-  # fluidRow(column(12, 
-  #   hr(), 
-  #   print("\u00a9 Datawheel, 2017. Released under MIT License."))
-  # )
 )
